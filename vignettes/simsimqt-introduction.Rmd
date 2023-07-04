@@ -1,0 +1,129 @@
+---
+title: "simsimqt-introduction"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{simsimqt-introduction}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(simsimqt)
+```
+
+
+## Setting up a simulation
+
+```{r}
+founder_genotypes <- draw_founder_genotypes(n_ind = 100,
+                                            n_loci = 1000,
+                                            distribution = "beta",
+                                            parameters = list(shape1 = 1/2,
+                                                              shape2= 1/2))
+```
+
+
+```{r}
+hist(colSums(founder_genotypes)/2/nrow(founder_genotypes))
+```
+
+
+```{r}
+trait <- make_trait(founder_genotypes,
+                    n_qtl = 50,
+                    distribution = "gaussian",
+                    parameters = list(mean_a = 0, var_a = 1),
+                    Vg = 1)
+trait
+```
+
+```{r}
+simparam <- SimParam$new(traits = list(trait), Ve = 1)
+```
+
+
+```{r}
+population <- new_population(founder_genotypes,
+                             simparam)
+```
+
+
+
+```{r}
+par(mfrow = c(2, 1))
+hist(population$gv)
+hist(population$pheno)
+```
+
+
+## Creating a breeding structure
+
+### Selection
+
+```{r}
+selected <- select_ind(population, n_ind = 10)
+```
+
+### Mating
+
+```{r}
+cross_plan <- cbind(selected$id[selected$sex == "F"][1:2],
+                    selected$id[selected$sex == "M"][1:2])
+make_cross(selected, cross_plan, n_progeny = 1, simparam = simparam)
+```
+
+
+```{r}
+balanced_cross(selected[selected$id[selected$sex == "F"]],
+               selected[selected$id[selected$sex == "M"]],
+               n_crosses = 2,
+               n_progeny = 5,
+               simparam = simparam)
+```
+
+
+```{r}
+rand_cross(selected[selected$id[selected$sex == "F"]],
+           selected[selected$id[selected$sex == "M"]],
+           n_crosses = 20,
+           n_progeny = 1,
+           simparam = simparam)
+```
+
+## Setting up a breeding structure
+
+```{r}
+generations <- vector(mode = "list",
+                      length = 10)
+
+generations[[1]] <- population
+
+for (gen in 2:10) {
+  
+  sires <- select_ind(get_males(generations[[gen - 1]]), 
+                      n_ind = 10,
+                      trait = 1)
+                      
+  dams <- get_females(generations[[gen - 1]])
+  
+  generations[[gen]] <- balanced_cross(dams,
+                                       sires,
+                                       n_crosses = 100,
+                                       n_progeny = 1,
+                                       simparam = simparam)
+  
+  
+}
+```
+
+```{r}
+plot(unlist(lapply(generations, function(x) mean(x$gv))))
+```
+
