@@ -123,3 +123,41 @@ print.population <- function(pop) {
   print(head(pop$pheno))
 
 }
+
+
+#' Extract females from a population.
+#'
+#' @param pop A population object.
+#'
+#' @return Population of females.
+#' @export
+get_females <- function(pop) {
+
+  pop[pop$id[pop$sex == "F"]]
+
+}
+
+#' Extract males from a population.
+#'
+#' @param pop A population object.
+#'
+#' @return Population of males.
+#' @export
+get_males <- function(pop) {
+
+  pop[pop$id[pop$sex == "M"]]
+
+}
+
+
+meanG <- function(pop) {
+
+  mean(pop$gv)
+
+}
+
+varG <- function(pop) {
+
+  var(pop$gv)
+
+}

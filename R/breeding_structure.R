@@ -81,7 +81,7 @@ make_cross <- function(pop,
   }
 
   next_id <- simparam$last_id + 1
-  simparam$last_id <- next_id + nrow(offspring_geno)
+  simparam$last_id <- next_id + nrow(offspring_geno) - 1
 
   sex <- rep(c("F", "M"), ceiling(nrow(offspring_geno)/2))
   sex <- sex[1:nrow(offspring_geno)]
@@ -93,7 +93,7 @@ make_cross <- function(pop,
 
   pheno <- add_environmental_noise(gv, simparam$Ve[1])
 
-  offspring <- structure(list(id = as.character(next_id:(next_id + nrow(offspring_geno))),
+  offspring <- structure(list(id = as.character(next_id:(next_id + nrow(offspring_geno) - 1)),
                               sex = sex,
                               geno = offspring_geno,
                               gv = matrix(gv, ncol = 1),
