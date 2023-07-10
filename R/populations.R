@@ -46,6 +46,7 @@ new_population <- function(geno,
 validate_population <- function(pop) {
 
   stopifnot(is.character(pop$id))
+  stopifnot(!any(duplicated(pop$id)))
   stopifnot(is.character(pop$sex))
   stopifnot(is.matrix(pop$geno))
   stopifnot(is.matrix(pop$gv))
@@ -150,14 +151,61 @@ get_males <- function(pop) {
 }
 
 
+#' Get mean genetic value from population object.
+#'
+#' @param pop Population object.
+#'
+#' @return Mean.
+#' @export
 meanG <- function(pop) {
 
   mean(pop$gv)
 
 }
 
+#' Get genetic variance from population object
+#'
+#' @param pop Population object.
+#'
+#' @return Variance.
+#' @export
 varG <- function(pop) {
 
   var(pop$gv)
+
+}
+
+
+#' Get genotypes at causative variants from population object
+#'
+#' @param pop Population object.
+#' @param trait Trait number.
+#' @param simparam Simulation parameters object.
+#'
+#' @return Genotype matrix coded 0, 1, 2.
+#' @export
+pull_qtl_geno <- function(pop,
+                          trait = 1,
+                          simparam) {
+
+  pop$geno[, simparam$traits[[trait]]$loci_ix]
+
+}
+
+
+#' Get frequencies of causative variants from population object
+#'
+#' @param pop Population object.
+#' @param trait Trait number.
+#' @param simparam Simulation parameters object.
+#'
+#' @return Allele frequencies
+#' @export
+pull_qtl_freq <- function(pop,
+                          trait = 1,
+                          simparam) {
+
+  geno <- pop$geno[, simparam$traits[[trait]]$loci_ix]
+  colSums(geno)/2/nrow(geno)
 
 }

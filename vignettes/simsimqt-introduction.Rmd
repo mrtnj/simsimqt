@@ -62,6 +62,23 @@ hist(population$gv)
 hist(population$pheno)
 ```
 
+### Inspecting genotypes at causative variants
+
+```{r}
+geno <- pull_qtl_geno(population,
+                      1,
+                      simparam)
+dim(geno)
+geno[1:5, 1:5]
+```
+
+```{r}
+pull_qtl_freq(population,
+              1, 
+              simparam)
+```
+
+
 
 ## Creating a breeding structure
 
@@ -70,6 +87,21 @@ hist(population$pheno)
 ```{r}
 selected <- select_ind(population, n_ind = 10)
 ```
+
+```{r}
+fitness_stabilising <- function(trait) {
+  
+  fitness <- exp(-trait^2)
+  
+}
+
+selected_stabilising <- select_ind_fitness(population,
+                                           trait = 1,
+                                           n_ind = 20,
+                                           fitness_function = fitness_stabilising)
+```
+
+
 
 ### Mating
 
@@ -90,22 +122,40 @@ balanced_cross(selected[selected$id[selected$sex == "F"]],
 
 
 ```{r}
-rand_cross(selected[selected$id[selected$sex == "F"]],
-           selected[selected$id[selected$sex == "M"]],
+rand_cross2(selected[selected$id[selected$sex == "F"]],
+            selected[selected$id[selected$sex == "M"]],
+            n_crosses = 20,
+            n_progeny = 1,
+            simparam = simparam)
+```
+```{r}
+rand_cross(selected,
            n_crosses = 20,
            n_progeny = 1,
            simparam = simparam)
 ```
 
+```{r}
+select_cross_fitness(selected,
+                     n_crosses = 20,
+                     n_progeny = 1,
+                     fitness_function = fitness_stabilising,
+                     simparam = simparam)
+```
+
+
+
 ## Setting up a breeding structure
+
+### Directional selection
 
 ```{r}
 generations <- vector(mode = "list",
-                      length = 10)
+                      length = 20)
 
 generations[[1]] <- population
 
-for (gen in 2:10) {
+for (gen in 2:20) {
   
   sires <- select_ind(get_males(generations[[gen - 1]]), 
                       n_ind = 10,
@@ -124,6 +174,43 @@ for (gen in 2:10) {
 ```
 
 ```{r}
-plot(unlist(lapply(generations, function(x) mean(x$gv))))
+plot(unlist(lapply(generations, meanG)))
+```
+
+
+```{r}
+plot(unlist(lapply(generations, varG)))
+```
+
+
+
+### Stabilising selection
+
+```{r}
+generations_stab <- vector(mode = "list",
+                           length = 20)
+
+generations_stab[[1]] <- population
+
+for (gen in 2:20) {
+  
+  generations_stab[[gen]] <-
+    select_cross_fitness(generations_stab[[gen - 1]],
+                         n_crosses = 100,
+                         n_progeny = 1,
+                         fitness_function = fitness_stabilising,
+                         simparam = simparam)
+  
+  
+}
+```
+
+```{r}
+plot(unlist(lapply(generations_stab, meanG)))
+```
+
+
+```{r}
+plot(unlist(lapply(generations_stab, varG)))
 ```
 

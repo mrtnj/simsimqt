@@ -2,15 +2,13 @@
 % Please edit documentation in R/breeding_structure.R
 \name{rand_cross}
 \alias{rand_cross}
-\title{Assign random crosses where each parent, within sex, is equally likely to be
-chosen each time.}
+\title{Assign random crosses where each parent, regardless of sex, is equally likely
+to be chosen each time.}
 \usage{
-rand_cross(females, males, n_crosses, n_progeny, simparam)
+rand_cross(pop, n_crosses, n_progeny, simparam)
 }
 \arguments{
-\item{females}{Population of mothers.}
-
-\item{males}{Populations of fathers.}
+\item{pop}{Population of parents}
 
 \item{n_crosses}{Number of crosses.}
 
@@ -22,6 +20,6 @@ rand_cross(females, males, n_crosses, n_progeny, simparam)
 Population object of offspring.
 }
 \description{
-Assign random crosses where each parent, within sex, is equally likely to be
-chosen each time.
+Assign random crosses where each parent, regardless of sex, is equally likely
+to be chosen each time.
 }

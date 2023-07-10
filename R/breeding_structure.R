@@ -18,6 +18,38 @@ select_ind <- function(pop,
 }
 
 
+#' Select individuals from a population based on sampling weighted by
+#' a fitness function.
+#'
+#' @param pop Population to select from.
+#' @param n_ind Number of individuals to select.
+#' @param trait Trait number of the trait to select on.
+#' @param fitness_function A function that takes trait values and return
+#' fitness values.
+#'
+#' @return A population object of selected individuals.
+#' @export
+select_ind_fitness <- function(pop,
+                               n_ind,
+                               fitness_function,
+                               trait = 1) {
+
+  fitness <- fitness_function(pop$pheno[, trait])
+  average_fitness <- mean(fitness)
+
+  stopifnot("Fitness function can't return NA" =
+              !is.na(average_fitness))
+
+  selected_ix <- sample(1:length(fitness),
+                        n_ind,
+                        prob = fitness/average_fitness,
+                        replace = FALSE)
+
+  pop[pop$id[selected_ix]]
+
+}
+
+
 get_gametes <- function(g) {
   stopifnot(length(g) == 1)
   if (g == 0) {
@@ -149,11 +181,11 @@ balanced_cross <- function(females,
 #'
 #' @return Population object of offspring.
 #' @export
-rand_cross <- function(females,
-                       males,
-                       n_crosses,
-                       n_progeny,
-                       simparam) {
+rand_cross2 <- function(females,
+                        males,
+                        n_crosses,
+                        n_progeny,
+                        simparam) {
 
   stopifnot("Wrong sex in females." =
               all(females$sex == "F"))
@@ -169,4 +201,77 @@ rand_cross <- function(females,
              cross_plan,
              n_progeny,
              simparam)
+}
+
+
+#' Assign random crosses where each parent, regardless of sex, is equally likely
+#' to be chosen each time.
+#'
+#' @param pop Population of parents
+#' @param n_crosses Number of crosses.
+#' @param n_progeny Number of offspring per cross.
+#' @param simparam Simulation parameters object.
+#'
+#' @return Population object of offspring.
+#' @export
+rand_cross <- function(pop,
+                       n_crosses,
+                       n_progeny,
+                       simparam) {
+
+  parent1 <- sample(pop$id, n_crosses, replace = TRUE)
+  parent2 <- sample(pop$id, n_crosses, replace = TRUE)
+
+  cross_plan <- cbind(parent1, parent2)
+
+  make_cross(pop,
+             cross_plan,
+             n_progeny,
+             simparam)
+}
+
+
+
+#' Cross individuals in a population based on sampling weighted by fitness
+#'
+#' @param pop Population of parents
+#' @param n_crosses Number of crosses.
+#' @param n_progeny Number of offspring per cross.
+#' @param trait Trait number of the trait to select on.
+#' @param fitness_function A function that takes trait values and return
+#' fitness values.
+#' @param simparam Simulation parameters object.
+#'
+#' @return A population object of selected individuals.
+#' @export
+select_cross_fitness <- function(pop,
+                                 n_crosses,
+                                 n_progeny,
+                                 fitness_function,
+                                 simparam,
+                                 trait = 1) {
+
+  fitness <- fitness_function(pop$pheno[, trait])
+  average_fitness <- mean(fitness)
+
+  stopifnot("Fitness function can't return NA" =
+              !is.na(average_fitness))
+
+  parent1_ix <- sample(1:length(fitness),
+                       n_crosses,
+                       prob = fitness/average_fitness,
+                       replace = TRUE)
+  parent2_ix <- sample(1:length(fitness),
+                       n_crosses,
+                       prob = fitness/average_fitness,
+                       replace = TRUE)
+
+  cross_plan <- cbind(pop$id[parent1_ix],
+                      pop$id[parent2_ix])
+
+  make_cross(pop,
+             cross_plan,
+             n_progeny,
+             simparam)
+
 }
