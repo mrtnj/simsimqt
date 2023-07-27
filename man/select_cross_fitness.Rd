@@ -4,7 +4,14 @@
 \alias{select_cross_fitness}
 \title{Cross individuals in a population based on sampling weighted by fitness}
 \usage{
-select_cross_fitness(pop, n_crosses, n_progeny, fitness_function, trait = 1)
+select_cross_fitness(
+  pop,
+  n_crosses,
+  n_progeny,
+  fitness_function,
+  simparam,
+  trait = 1
+)
 }
 \arguments{
 \item{pop}{Population of parents}
@@ -16,9 +23,9 @@ select_cross_fitness(pop, n_crosses, n_progeny, fitness_function, trait = 1)
 \item{fitness_function}{A function that takes trait values and return
 fitness values.}
 
-\item{trait}{Trait number of the trait to select on.}
-
 \item{simparam}{Simulation parameters object.}
+
+\item{trait}{Trait number of the trait to select on.}
 }
 \value{
 A population object of selected individuals.

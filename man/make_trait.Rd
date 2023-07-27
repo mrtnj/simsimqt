@@ -26,6 +26,8 @@ var_a are the mean and variance for he additive genetic coefficients;
 mean_dd and var_dd are the, optional, mean and variance for dominance degrees.}
 
 \item{Vg}{Desired genetic variance.}
+
+\item{trait_mean}{Desired trait mean.}
 }
 \value{
 A list describing the trait, with indices to the loci, and additive
