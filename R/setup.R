@@ -25,8 +25,7 @@ draw_founder_genotypes <- function(n_ind,
                          shape1 = parameters$shape1,
                          shape2 = parameters$shape2)
 
-    geno <- sapply(freq,
-                   function(p) stats::rbinom(n = n_ind, prob = p, size = 2))
+    geno <- draw_founder_genotypes_freq(n_ind, freq)
 
   } else {
      stop("Distribution not implemented.")
@@ -34,6 +33,22 @@ draw_founder_genotypes <- function(n_ind,
 
 
   geno
+}
+
+
+#' Sample founder genotypes with given frequencies.
+#'
+#' @param n_ind Number of individuals.
+#' @param freq Vector of base population frequencies.
+#'
+#' @return Matrix of individual x locus genotypes coded 0, 1, 2
+#' @export
+draw_founder_genotypes_freq <- function(n_ind,
+                                        freq) {
+
+  sapply(freq,
+         function(p) stats::rbinom(n = n_ind, prob = p, size = 2))
+
 }
 
 
@@ -48,6 +63,7 @@ draw_founder_genotypes <- function(n_ind,
 #' var_a are the mean and variance for he additive genetic coefficients;
 #' mean_dd and var_dd are the, optional, mean and variance for dominance degrees.
 #' @param Vg Desired genetic variance.
+#' @param trait_mean Desired trait mean.
 #'
 #' @return A list describing the trait, with indices to the loci, and additive
 #' genetic coefficients and dominance coefficients for each locus.
@@ -84,19 +100,57 @@ make_trait <- function(founder_geno,
     stop("Distribution not implemented.")
   }
 
-  genetic_values <- calculate_genetic_values(founder_geno[, loci_ix],
-                                             a,
-                                             d)
-  variance_initial <- stats::var(genetic_values)
-  scaling_constant <- sqrt(Vg) / sqrt(variance_initial)
+  make_trait_manual(founder_geno,
+                    loci_ix,
+                    a,
+                    d,
+                    Vg,
+                    trait_mean)
+}
 
-  intercept <- trait_mean - mean(genetic_values) * scaling_constant
+
+#' Create a trait based on given effect sizes.
+#'
+#' @param founder_geno Matrix of individual x locus founder genotypes coded 0, 1, 2.
+#' @param loci_ix Indices of causative variants in genotype matrix.
+#' @param a Vector of additive genetic coefficients.
+#' @param d Vector of dominance coefficients.
+#' @param Vg Desired genetic variance; NULL for no adjustment.
+#' @param trait_mean Desired trait mean; NULL for no adjustment.
+#'
+#' @return A list describing the trait, with indices to the loci, and additive
+#' genetic coefficients and dominance coefficients for each locus.
+#' @export
+#'
+make_trait_manual <- function(founder_geno,
+                              loci_ix,
+                              a,
+                              d,
+                              Vg = NULL,
+                              trait_mean = NULL) {
+
+  if (is.null(Vg)) {
+    scaling_constant <- 1
+  } else {
+    genetic_values <- calculate_genetic_values(founder_geno[, loci_ix],
+                                               a,
+                                               d)
+    variance_initial <- stats::var(genetic_values)
+    scaling_constant <- sqrt(Vg) / sqrt(variance_initial)
+  }
+
+  if (is.null(trait_mean)) {
+    intercept <- 0
+  } else {
+    intercept <- trait_mean - mean(genetic_values) * scaling_constant
+  }
 
   list(loci_ix = loci_ix,
        a = a * scaling_constant,
        d = d * scaling_constant,
        intercept = intercept)
 }
+
 
 
 
