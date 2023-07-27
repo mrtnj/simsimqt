@@ -67,8 +67,8 @@ get_inherited_genotype <- function(mother_geno, father_geno) {
   offspring_geno <- NA_real_
 
   if (!is.na(mother_geno) & !is.na(father_geno)) {
-    mother_gametes <- get_gametes(mother_geno)
-    father_gametes <- get_gametes(father_geno)
+    mother_gametes <- get_gametes_cpp(mother_geno)
+    father_gametes <- get_gametes_cpp(father_geno)
 
     from_mother <- sample(mother_gametes, 1)
     from_father <- sample(father_gametes, 1)
@@ -107,9 +107,8 @@ make_cross <- function(pop,
     mother_geno <- pop$geno[pop$id == cross_plan[cross_ix, 1], ]
     father_geno <- pop$geno[pop$id == cross_plan[cross_ix, 2], ]
 
-    offspring_geno[cross_ix, ] <- mapply(get_inherited_genotype,
-                                         mother_geno,
-                                         father_geno)
+    offspring_geno[cross_ix, ] <- get_inherited_genotype_vector(mother_geno,
+                                                                father_geno)
   }
 
   next_id <- simparam$last_id + 1
@@ -249,13 +248,17 @@ select_cross_fitness <- function(pop,
                                  n_progeny,
                                  fitness_function,
                                  simparam,
-                                 trait = 1) {
+                                 trait = 1,
+                                 ...) {
 
-  fitness <- fitness_function(pop$pheno[, trait])
+  fitness <- fitness_function(pop$pheno[, trait], ...)
   average_fitness <- mean(fitness)
 
   stopifnot("Fitness function can't return NA" =
-              !is.na(average_fitness))
+              !any(is.na(fitness)))
+
+  stopifnot("Fitness must be a number" =
+              all(is.numeric(fitness)))
 
   parent1_ix <- sample(1:length(fitness),
                        n_crosses,
