@@ -259,6 +259,8 @@ SimParam <- R6::R6Class("SimParam",
                           initialize = function(traits = traits,
                                                 Ve = Ve,
                                                 use_sexes = TRUE) {
+                            stopifnot("Traits not in list" =
+                                        is.list(traits))
                             self$traits <- traits
                             self$Ve <- Ve
                             self$use_sexes <- use_sexes
