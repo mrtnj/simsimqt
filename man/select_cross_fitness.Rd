@@ -10,7 +10,8 @@ select_cross_fitness(
   n_progeny,
   fitness_function,
   simparam,
-  trait = 1
+  trait = 1,
+  ...
 )
 }
 \arguments{
