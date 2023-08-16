@@ -33,10 +33,37 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// mutate_geno
+int mutate_geno(int geno, bool allele1_mutates, bool allele2_mutates);
+RcppExport SEXP _simsimqt_mutate_geno(SEXP genoSEXP, SEXP allele1_mutatesSEXP, SEXP allele2_mutatesSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< int >::type geno(genoSEXP);
+    Rcpp::traits::input_parameter< bool >::type allele1_mutates(allele1_mutatesSEXP);
+    Rcpp::traits::input_parameter< bool >::type allele2_mutates(allele2_mutatesSEXP);
+    rcpp_result_gen = Rcpp::wrap(mutate_geno(geno, allele1_mutates, allele2_mutates));
+    return rcpp_result_gen;
+END_RCPP
+}
+// mutate_genotypes_per_locus
+NumericMatrix mutate_genotypes_per_locus(NumericMatrix geno, double mutation_rate);
+RcppExport SEXP _simsimqt_mutate_genotypes_per_locus(SEXP genoSEXP, SEXP mutation_rateSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< NumericMatrix >::type geno(genoSEXP);
+    Rcpp::traits::input_parameter< double >::type mutation_rate(mutation_rateSEXP);
+    rcpp_result_gen = Rcpp::wrap(mutate_genotypes_per_locus(geno, mutation_rate));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_simsimqt_get_gametes_cpp", (DL_FUNC) &_simsimqt_get_gametes_cpp, 1},
     {"_simsimqt_get_inherited_genotype_vector", (DL_FUNC) &_simsimqt_get_inherited_genotype_vector, 2},
+    {"_simsimqt_mutate_geno", (DL_FUNC) &_simsimqt_mutate_geno, 3},
+    {"_simsimqt_mutate_genotypes_per_locus", (DL_FUNC) &_simsimqt_mutate_genotypes_per_locus, 2},
     {NULL, NULL, 0}
 };
 
