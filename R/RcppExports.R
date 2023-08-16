@@ -9,3 +9,11 @@ get_inherited_genotype_vector <- function(mother_geno, father_geno) {
     .Call('_simsimqt_get_inherited_genotype_vector', PACKAGE = 'simsimqt', mother_geno, father_geno)
 }
 
+mutate_geno <- function(geno, allele1_mutates, allele2_mutates) {
+    .Call('_simsimqt_mutate_geno', PACKAGE = 'simsimqt', geno, allele1_mutates, allele2_mutates)
+}
+
+mutate_genotypes_per_locus <- function(geno, mutation_rate) {
+    .Call('_simsimqt_mutate_genotypes_per_locus', PACKAGE = 'simsimqt', geno, mutation_rate)
+}
+
