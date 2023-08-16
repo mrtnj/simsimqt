@@ -117,22 +117,19 @@ make_cross <- function(pop,
   sex <- rep(c("F", "M"), ceiling(nrow(offspring_geno)/2))
   sex <- sex[1:nrow(offspring_geno)]
 
-  gv <- calculate_genetic_values(geno = offspring_geno[, simparam$traits[[1]]$loci_ix],
-                                 a = simparam$traits[[1]]$a,
-                                 d = simparam$traits[[1]]$d) +
-    simparam$traits[[1]]$intercept
-
-  pheno <- add_environmental_noise(gv, simparam$Ve[1])
+  gv_pheno <- get_trait_values(offspring_geno, simparam)
 
   offspring <- structure(list(id = as.character(next_id:(next_id + nrow(offspring_geno) - 1)),
                               sex = sex,
                               geno = offspring_geno,
-                              gv = matrix(gv, ncol = 1),
-                              pheno = matrix(pheno, ncol = 1)),
+                              gv = gv_pheno$gv,
+                              pheno = gv_pheno$pheno),
                          class = "population")
 
   offspring
 }
+
+
 
 
 #' Randomly mate individuals from a population while assigning the number
