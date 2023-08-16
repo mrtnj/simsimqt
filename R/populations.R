@@ -13,12 +13,7 @@ new_population <- function(geno,
   stopifnot("Only one trait implemented yet. Go yell at Martin!" =
               length(simparam$trait) < 2)
 
-  gv <- calculate_genetic_values(geno = geno[, simparam$traits[[1]]$loci_ix],
-                                 a = simparam$traits[[1]]$a,
-                                 d = simparam$traits[[1]]$d) +
-    simparam$traits[[1]]$intercept
-
-  pheno <- add_environmental_noise(gv, simparam$Ve[1])
+  gv_pheno <- get_trait_values(geno, simparam)
 
   sex <- rep(NA_character_, nrow(geno))
   if (simparam$use_sexes) {
@@ -31,10 +26,33 @@ new_population <- function(geno,
   structure(list(id = as.character(1:nrow(geno)),
                  sex = sex,
                  geno = geno,
-                 gv = matrix(gv, ncol = 1),
-                 pheno = matrix(pheno, ncol = 1)),
+                 gv = gv_pheno$gv,
+                 pheno = gv_pheno$pheno),
             class = "population")
 
+}
+
+
+get_trait_values <- function(geno, simparam) {
+
+  if (length(simparam$traits) > 0) {
+    gv <- calculate_genetic_values(geno = geno[, simparam$traits[[1]]$loci_ix],
+                                   a = simparam$traits[[1]]$a,
+                                   d = simparam$traits[[1]]$d) +
+      simparam$traits[[1]]$intercept
+
+    gv <- matrix(gv, ncol = 1)
+
+    pheno <- add_environmental_noise(gv, simparam$Ve[1])
+
+    pheno <- matrix(pheno, ncol = 1)
+
+  } else {
+    gv <- matrix(ncol = 0, nrow = nrow(geno))
+    pheno <- matrix(ncol = 0, nrow = nrow(geno))
+  }
+
+  list(gv = gv, pheno = pheno)
 }
 
 #' Check the validity of a population object.
