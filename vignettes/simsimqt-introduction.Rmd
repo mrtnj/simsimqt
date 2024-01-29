@@ -14,6 +14,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Introduction
+
+In this vignette, we will show hos to set up a simulation, get key parameters like genetic values, phenotypes and allele frequencies out of the simulation objects, and how to implement selection with different fitness functions.
+
 ```{r setup}
 library(simsimqt)
 ```
@@ -21,19 +25,42 @@ library(simsimqt)
 
 ## Setting up a simulation
 
+There are four parts to setting up a simulation:
+
+1. **Founder genotypes**. The first ("founder") population that starts the simulation need genotypes. All subsequent individuals inherit their genotypes from their parents, but because the founders don't have any simulated parents, we need to simulate their genotypes separately.
+
+2. **A trait**. If we want selection, we need a model of a trait. Traits are represented by trait objects, that keep track of the identities causative variants that contribute to the trait, and their locus-level genetic parameters.
+
+3. **Simulation parameters object**. The simulation parameters object stores the trait (in a list of traits, to allow for multi-trait models that are not yet implemented), and any other information that needs to be kept around for the simulation (like the environmental variance). This object needs to be passed around to many functions that need such simulation parameters.
+
+4. **The founder population**. Finally, the above information is combined to simulate the founder populations, the individuals that will seed the simulation. They become the first population object. This object keeps track of identities of individuals, their genotypes, their phenotypes, sexes and so on.
+
+
+### Founder genotypes
+
+Founder genotypes are simulated with `draw_founder_genotypes`, which first draws allele frequencies by sampling from a Beta distribution, and then draws genotypes (coded 0, 1, 2) by sampling from a Binomial distribution. The shape of the allele frequency distribution is controlled by supplying shape parameters to the Beta distribution.
+
 ```{r}
-founder_genotypes <- draw_founder_genotypes(n_ind = 100,
+founder_genotypes <- draw_founder_genotypes(n_ind = 50,
                                             n_loci = 1000,
                                             distribution = "beta",
                                             parameters = list(shape1 = 1/2,
-                                                              shape2= 1/2))
+                                                              shape2 = 1/2))
 ```
 
+Here is a histogram of the above beta distribution:
 
-```{r}
-hist(colSums(founder_genotypes)/2/nrow(founder_genotypes))
+```{r, fig.dim = c(5, 5)}
+hist(colSums(founder_genotypes)/2/nrow(founder_genotypes),
+     main = "Allele frequency histogram",
+     xlab = "Simulated founder frequency")
 ```
 
+### Trait
+
+The `make_trait` function creates a trait object, sammpling a given number of variants from the founder genotypes to be causative variants, and sampling genetic parameters for them. Here, we use a Gaussian distribution for the additive genetic coefficient `a` with mean 0 and a variance 1. The genetic variance `Vg` is set to also equal 1 at the start of the simulation.
+
+The resulting trait object contains named elements for the number (index) of the chosen causative variants, the genetic coefficients `a` and `d` for each causative variant, and an intercept (used to adjust the phenotype to a starting value of 0).
 
 ```{r}
 trait <- make_trait(founder_genotypes,
@@ -44,10 +71,17 @@ trait <- make_trait(founder_genotypes,
 trait
 ```
 
+### Simulation parameters object
+
+We create the simulation parameters object by calling `SimParam$new()` with the trait and the desired environmental variance `Ve`.
+
 ```{r}
 simparam <- SimParam$new(traits = list(trait), Ve = 1)
 ```
 
+### The population
+
+Finally, we are able to create the first population, using the founder genotypes and the simulation parameters object. We are now ready to simulate.
 
 ```{r}
 population <- new_population(founder_genotypes,
@@ -55,14 +89,29 @@ population <- new_population(founder_genotypes,
 ```
 
 
+## Inspecting a population object
+
+The population object keeps track of the individuals in a population. Printing it shows an overview with examples of individuals:
 
 ```{r}
+population
+```
+
+### Inspecting genotypic and phenotypic values
+
+One can extract genetic values and phenotypic values, for example to plot them:
+
+```{r,fig.dim = c(5, 10)}
 par(mfrow = c(2, 1))
 hist(population$gv)
 hist(population$pheno)
 ```
 
-### Inspecting genotypes at causative variants
+### Inspecting genotypes at causative variants¨
+
+The genotypes at the causative variants can be extracted. The `pull_qtl_geno` function takes a population, the number of the trait to be extracted (here always 1; leaving the option for yet to be implemented multi-trait models), and the simulation parameters object.
+
+This results in a matrix where rows are individuals, columns are causative variants.
 
 ```{r}
 geno <- pull_qtl_geno(population,
@@ -71,27 +120,51 @@ geno <- pull_qtl_geno(population,
 dim(geno)
 geno[1:5, 1:5]
 ```
+For convenience, one can pull out the allele frequencies directly:
 
 ```{r}
 pull_qtl_freq(population,
               1, 
               simparam)
 ```
+### Subsetting populations
 
-
-
-## Creating a breeding structure
-
-### Selection
+The population object can be subsetted by individual IDs. This could be used to implement selection manually in special cases, but many selection operations can be done at a higher level with functions, without the need to keep track of IDs.
 
 ```{r}
-selected <- select_ind(population, n_ind = 10)
+population[c("2", "5")]
 ```
+
+
+
+
+## Selection, mating, and combinations thereof
+
+The `select_ind` and `select_ind_fitnsss` select individuals from populations. Note that both these functions _just_ do the selection step, i.e., they pick a given number of parents parents without mating them to form offspring. This is quite natural when working with truncation selection, where you pick a certain proportion of top parents, and then mate them (potentially randomly) between each other.
+
+In a short while, we will show functions that perform selection and mating in one step, which may be more natural when working with fitness functions, and you might want fitness to influence both the probability of becoming a parent _and_ the number of matings.
+
+
+### Select on phenotype
+
+To select a given number of individuals with high trait values, use `select_ind`.
+
+```{r}
+selected <- select_ind(population, trait = 1, n_ind = 10)
+```
+
+This yields a new population object with the selected ones.
+
+### Select based on fitness function
+
+To select a given number of individuals based on a fitness function, use `select_ind_fitness`.
+
+A fitness function is a function that takes trait values of indivividuals and return a value representing their fitness. For stabilising selection, exponential fitness functions like this one are common. This one has the optimum at 0, and decreasing fitness around that.
 
 ```{r}
 fitness_stabilising <- function(trait) {
   
-  fitness <- exp(-trait^2)
+  exp(-trait^2)
   
 }
 
@@ -102,38 +175,54 @@ selected_stabilising <- select_ind_fitness(population,
 ```
 
 
-
 ### Mating
+
+To cross with random mating, ignoring sexes, use `rand_cross`. Each parent is equally likely to be chosen each time. This is artificial, but it is the basis of idealised population models.
+
+```{r}
+offspring_random_mating <- rand_cross(selected,
+                                      n_crosses = 20,
+                                      n_progeny = 1,
+                                      simparam = simparam)
+```
+
+For random mating with separate sexes, use `rand_cross2` (where the "2" stands for two sexes or two source populations). Here, within sex, every parent has the same probability of becoming a parent each time. This means that parents will, in actuality, have unequal contributions due to random chance.
+
+```{r}
+offspring_random <- rand_cross2(get_females(selected),
+                                get_males(selected),
+                                n_crosses = 20,
+                                n_progeny = 1,
+                                simparam = simparam)
+```
+
+To mate individuals in random combinations with balanced contributions for each parent, used `balanced_cross`. This is a common option for "random mating" in breeding program simulations.
+
+The first two arguments are population objects of females and males to be mated; for convenience, there are functions to get only males or females from a population object. Then we specify the number of crosses and the number of progeny from each cross.
+
+```{r}
+offspring_balanced <- balanced_cross(get_females(selected),
+                                     get_males(selected),
+                                     n_crosses = 2,
+                                     n_progeny = 5,
+                                     simparam = simparam)
+```
+
+The most general option is to mate according to a custom cross plan with `make_cross`. In most cases, this is probably too cumbersome, but this function is used under the hood to implement other options.
+
+Here is an example cross plan where two offspring are made from four parents.
 
 ```{r}
 cross_plan <- cbind(selected$id[selected$sex == "F"][1:2],
                     selected$id[selected$sex == "M"][1:2])
+cross_plan
 make_cross(selected, cross_plan, n_progeny = 1, simparam = simparam)
 ```
 
 
-```{r}
-balanced_cross(selected[selected$id[selected$sex == "F"]],
-               selected[selected$id[selected$sex == "M"]],
-               n_crosses = 2,
-               n_progeny = 5,
-               simparam = simparam)
-```
+### Selection and mating combined
 
-
-```{r}
-rand_cross2(selected[selected$id[selected$sex == "F"]],
-            selected[selected$id[selected$sex == "M"]],
-            n_crosses = 20,
-            n_progeny = 1,
-            simparam = simparam)
-```
-```{r}
-rand_cross(selected,
-           n_crosses = 20,
-           n_progeny = 1,
-           simparam = simparam)
-```
+When using a fitness function, it is natural to model fitness affecting not just the probability of being chosen, but the number of offspring. This means that selection and crossing needs to be coupled. This can be done with `select_cross_fitness`, which samples parents to form each mating based on the fitness function. Here, like in `rand_cross`, sexes are ignored. Each individuals a probability of being chosen that is the same for each mating, and based on their fitness.
 
 ```{r}
 select_cross_fitness(selected,
@@ -147,7 +236,13 @@ select_cross_fitness(selected,
 
 ## Setting up a breeding structure
 
+The "breeding structure" describes how individuals are selected, mated and when they enter and exit a population. The breeding structure is specified by writing an R script that uses selection, mating and subsetting functions.
+
 ### Directional selection
+
+Arguably the simplest case is directional truncation selection, where a given number of individuals with high trait values are chosen to be parents, with discrete generations.
+
+Here is such a case with a breeding loop:
 
 ```{r}
 generations <- vector(mode = "list",
@@ -165,7 +260,7 @@ for (gen in 2:20) {
   
   generations[[gen]] <- balanced_cross(dams,
                                        sires,
-                                       n_crosses = 100,
+                                       n_crosses = 50,
                                        n_progeny = 1,
                                        simparam = simparam)
   
@@ -173,18 +268,26 @@ for (gen in 2:20) {
 }
 ```
 
-```{r}
-plot(unlist(lapply(generations, meanG)))
+We can follow the genetic mean and variance:
+
+```{r, fig.dim = c(5, 5)}
+plot(unlist(lapply(generations, meanG)),
+     main = "Genetic mean with directional selection",
+     xlab = "Generation", ylab = "Genetic mean")
 ```
 
 
-```{r}
-plot(unlist(lapply(generations, varG)))
+```{r, fig.dim = c(5, 5)}
+plot(unlist(lapply(generations, varG)),
+     main = "Genetic variance with directional selection",
+     xlab = "Generation", ylab = "Genetic variance")
 ```
 
 
 
 ### Stabilising selection
+
+For a breeding structure with stabilising selection and discrete geenerations, we set up a similar structure but use `select_cross_fitness` and the previously defined fitness function.
 
 ```{r}
 generations_stab <- vector(mode = "list",
@@ -196,7 +299,7 @@ for (gen in 2:20) {
   
   generations_stab[[gen]] <-
     select_cross_fitness(generations_stab[[gen - 1]],
-                         n_crosses = 100,
+                         n_crosses = 50,
                          n_progeny = 1,
                          fitness_function = fitness_stabilising,
                          simparam = simparam)
@@ -205,12 +308,16 @@ for (gen in 2:20) {
 }
 ```
 
-```{r}
-plot(unlist(lapply(generations_stab, meanG)))
+```{r, fig.dim = c(5, 5)}
+plot(unlist(lapply(generations_stab, meanG)),
+     main = "Trait under stabilising selection",
+     xlab = "Generations", ylab = "Genetic mean")
 ```
 
 
-```{r}
-plot(unlist(lapply(generations_stab, varG)))
+```{r, fig.dim = c(5, 5)}
+plot(unlist(lapply(generations_stab, varG)),
+     main = "Genetic variance under stabilising selection",
+     xlab = "Generation", ylab = "Genetic variance")
 ```
 
