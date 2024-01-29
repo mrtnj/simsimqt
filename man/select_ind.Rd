@@ -2,7 +2,7 @@
 % Please edit documentation in R/breeding_structure.R
 \name{select_ind}
 \alias{select_ind}
-\title{Select individuals from a population based on trait}
+\title{Select top individuals from a population based on trait}
 \usage{
 select_ind(pop, n_ind, trait = 1)
 }
@@ -17,5 +17,5 @@ select_ind(pop, n_ind, trait = 1)
 A population object of selected individuals.
 }
 \description{
-Select individuals from a population based on trait
+Select top individuals from a population based on trait
 }

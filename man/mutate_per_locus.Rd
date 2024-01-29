@@ -2,16 +2,18 @@
 % Please edit documentation in R/mutation.R
 \name{mutate_per_locus}
 \alias{mutate_per_locus}
-\title{Title}
+\title{Mutate the genotype matrix of a population by a per-locus mutation rate.}
 \usage{
-mutate_per_locus(pop, mutation_rate, simparam)
+mutate_per_locus(pop, mutation_rate)
 }
 \arguments{
-\item{mutation_rate}{}
+\item{pop}{Population object.}
+
+\item{mutation_rate}{Mutation rate per locus and genome copy.}
 }
 \value{
-
+Population object.
 }
 \description{
-Title
+Mutate the genotype matrix of a population by a per-locus mutation rate.
 }

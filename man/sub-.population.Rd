@@ -9,7 +9,7 @@
 \arguments{
 \item{pop}{A population object}
 
-\item{i}{Numeric indices of individuals to select.}
+\item{ids}{Individual IDs to select.}
 }
 \value{
 A population object containing the subset.
