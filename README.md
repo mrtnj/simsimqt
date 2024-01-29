@@ -18,7 +18,7 @@ Installation from this repository with the `remotes` package.
 The package contains some C++ code, which means that you need a compiler set up for package installation. On Windows, this means that you need `RTools` installed. On a *nix system, this should be nothing out of the ordinary.
 
 ```
-remotes::install_github("mrtnj/simsimqt")
+remotes::install_github("mrtnj/simsimqt", build_vignettes = TRUE)
 ```
 
 **Note: Again, this package is not yet recommended to anyone outside of the research group.**
