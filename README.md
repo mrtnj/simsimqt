@@ -2,8 +2,7 @@
 
 ## Note about status of the package
 
-This package is in development, and while published, not recommended for use
-outside the research group yet.
+This package is in development and not recommended for use outside the research group yet. 
 
 
 ## Introduction
