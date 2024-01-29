@@ -79,7 +79,7 @@ validate_population <- function(pop) {
 #' Hard bracket indexing on a population object takes a subset of individuals.
 #'
 #' @param pop A population object
-#' @param i Numeric indices of individuals to select.
+#' @param ids Individual IDs to select.
 #'
 #' @return A population object containing the subset.
 #' @export

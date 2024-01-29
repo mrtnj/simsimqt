@@ -1,5 +1,5 @@
 
-#' Select individuals from a population based on trait
+#' Select top individuals from a population based on trait
 #'
 #' @param pop Population to select from.
 #' @param n_ind Number of individuals to select.
