@@ -21,6 +21,7 @@ fitness values.}
 A population object of selected individuals.
 }
 \description{
-Select individuals from a population based on sampling weighted by
-a fitness function.
+This function selectes a number of individuals stochastically based on
+sampling, without replacement, weighted by a fitness function.
+High fitness values are more likely to be sampled.
 }

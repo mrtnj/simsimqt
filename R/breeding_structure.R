@@ -1,6 +1,9 @@
 
 #' Select top individuals from a population based on trait
 #'
+#' This function selects a number of individuals deterministically based on
+#' the ranking of their trait values. High values are selected.
+#'
 #' @param pop Population to select from.
 #' @param n_ind Number of individuals to select.
 #' @param trait Trait number of the trait to select on.
@@ -20,6 +23,10 @@ select_ind <- function(pop,
 
 #' Select individuals from a population based on sampling weighted by
 #' a fitness function.
+#'
+#' This function selectes a number of individuals stochastically based on
+#' sampling, without replacement, weighted by a fitness function.
+#' High fitness values are more likely to be sampled.
 #'
 #' @param pop Population to select from.
 #' @param n_ind Number of individuals to select.
@@ -81,6 +88,10 @@ get_inherited_genotype <- function(mother_geno, father_geno) {
 
 #' Make crosses according to a cross plan
 #'
+#' Crosses are made based on a matrix of parents. This function is used
+#' internally by other crossing functions, and can be used if you want
+#' more control over the cross plan.
+#'
 #' @param pop Population to take individuals from.
 #' @param cross_plan Matrix of individual IDs, where the first column is
 #' mothers and the second fathers.
@@ -133,7 +144,11 @@ make_cross <- function(pop,
 
 
 #' Randomly mate individuals from a population while assigning the number
-#' of offspring in a balanced way across parents and sexes.
+#' of offspring in a balanced way across parents and sexes
+#'
+#' In this crossing scheme, males and females are assigned as fathers and mothers
+#' with equal contributions within sex. The contributions between sexes will be
+#' different if the number of males and females used differs.
 #'
 #' @param females Population object of mothers.
 #' @param males Population object of fathers.
@@ -167,7 +182,12 @@ balanced_cross <- function(females,
 
 
 #' Assign random crosses where each parent, within sex, is equally likely to be
-#' chosen each time.
+#' chosen each time
+#'
+#' In this crossing scheme, males and females are assigned as fathers and mothers
+#' by sampling with replacement within sex. This means that contributions may be
+#' unequal within sex, as opposed to balanced_cross, which balances matings
+#' within sex.
 #'
 #' @param females Population of mothers.
 #' @param males Populations of fathers.

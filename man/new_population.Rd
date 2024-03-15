@@ -12,7 +12,14 @@ new_population(geno, simparam)
 \item{simparam}{Simulation parameters object.}
 }
 \value{
-
+A population object, which contains the following components:
+ \itemize{
+ \item{"id"}{ with the individuals' identifiers}
+ \item{"sex"}{ with sexes coded F and M}
+ \item{"geno}{ with the genotype matrix}
+ \item{"gv"}{ with genetic values}
+ \item{"pheno"}{ with trait values}
+}
 }
 \description{
 Create a population object

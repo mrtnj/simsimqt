@@ -3,7 +3,7 @@
 \name{rand_cross2}
 \alias{rand_cross2}
 \title{Assign random crosses where each parent, within sex, is equally likely to be
-chosen each time.}
+chosen each time}
 \usage{
 rand_cross2(females, males, n_crosses, n_progeny, simparam)
 }
@@ -22,6 +22,8 @@ rand_cross2(females, males, n_crosses, n_progeny, simparam)
 Population object of offspring.
 }
 \description{
-Assign random crosses where each parent, within sex, is equally likely to be
-chosen each time.
+In this crossing scheme, males and females are assigned as fathers and mothers
+by sampling with replacement within sex. This means that contributions may be
+unequal within sex, as opposed to balanced_cross, which balances matings
+within sex.
 }

@@ -20,5 +20,7 @@ mothers and the second fathers.}
 Population object of offspring.
 }
 \description{
-Make crosses according to a cross plan
+Crosses are made based on a matrix of parents. This function is used
+internally by other crossing functions, and can be used if you want
+more control over the cross plan.
 }

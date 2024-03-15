@@ -3,7 +3,6 @@
 S3method("[",population)
 S3method(c,population)
 S3method(print,population)
-export(SimParam)
 export(add_environmental_noise)
 export(balanced_cross)
 export(calculate_genetic_values)
@@ -27,7 +26,6 @@ export(select_ind)
 export(select_ind_fitness)
 export(validate_population)
 export(varG)
-
-
+export(SimParam)
 useDynLib(simsimqt)
 importFrom(Rcpp, evalCpp)

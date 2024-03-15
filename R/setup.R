@@ -1,17 +1,37 @@
 
 
 #' Sample founder genotypes with frequencies drawn from a random
-#' distribution.
+#' distribution
+#'
+#' Create a genotype matrix from a founder population that can be used to start
+#' the simulation.
+#'
+#' Loci are assumed to be unlinked (i.e., genotypes are drawn independently)
+#' and biallelic (i.e., there are two alleles), and the organism is assumed to
+#' be diploid (i.e, there are three genotypes). The genotypes are coded as
+#' 0 (homozygote), 1 (heterozygote), and 2 (homzoygote).
+#'
+#' First, allele frequencies are drawn from a specified distribution for a
+#' given number of loci, and then the genotypes are drawn from a binomial
+#' distribution with size 2 and probability of success equal to the allele
+#' frequency.
 #'
 #' @param n_ind Number of individuals.
 #' @param n_loci Number of loci (note that they are not guaranteed to be polymorphic,
 #' so this number should be bigger than the number of causative variants that
-#' are planned)
+#' are planned).
 #' @param distribution Distribution for allele frequencies; only beta is implemented.
-#' @param parameters List of parameters for the random distribution (e.g., for beta
-#' it would be list(shape1, shape2).
+#' @param parameters List of parameters for the random distribution for allele frequencies
+#'  (e.g., for beta it would be list(shape1, shape2).
 #'
 #' @return Matrix of individual x locus genotypes coded 0, 1, 2
+#' @examples
+#' # Genotypes for 50 individuals, 1000 loci, allele frequencies from Beta(1/2, 1/2).
+#' founder_genotypes <- draw_founder_genotypes(n_ind = 50,
+#'                                             n_loci = 1000,
+#'                                             distribution = "beta",
+#'                                             parameters = list(shape1 = 1/2,
+#'                                                               shape2 = 1/2))
 #' @export
 #'
 draw_founder_genotypes <- function(n_ind,
@@ -36,7 +56,20 @@ draw_founder_genotypes <- function(n_ind,
 }
 
 
-#' Sample founder genotypes with given frequencies.
+#' Sample founder genotypes with given frequencies
+#'
+#' This function is used internally by draw_founder_genotypes, which also draws
+#' allele frequencies from a distribution. It may be used if you want more control
+#' over starting allele frequencies.
+#'
+#' Loci are assumed to be unlinked (i.e., genotypes are drawn independently)
+#' and biallelic (i.e., there are two alleles), and the organism is assumed to
+#' be diploid (i.e, there are three genotypes). The genotypes are coded as
+#' 0 (homozygote), 1 (heterozygote), and 2 (homzoygote).
+#'
+#' For each locus, genotypes are drawn from a binomial
+#' distribution with size 2 and probability of success equal to the allele
+#' frequency provided for that locus.
 #'
 #' @param n_ind Number of individuals.
 #' @param freq Vector of base population frequencies.
@@ -53,7 +86,18 @@ draw_founder_genotypes_freq <- function(n_ind,
 
 
 
-#' Create a quantitative trait based on founder genotypes.
+#' Create a quantitative trait based on founder genotypes
+#'
+#' Function to set up causative loci and genetic architecture for a quantitative
+#' trait. The results are returned as a trait list which can be used to make a
+#' simulation parameters object.
+#'
+#' Polymorphic loci from the founder genotypes are randomly chosen to be
+#' causative and assigned additive genetic coefficients and optionally
+#' dominance coefficients based on a probability distribution.
+#'
+#' The resulting genetic variance and trait mean are adjusted to
+#' desired numbers.
 #'
 #' @param founder_geno Matrix of individual x locus founder genotypes coded 0, 1, 2.
 #' @param n_qtl Number of causative variants desired.
@@ -62,11 +106,30 @@ draw_founder_genotypes_freq <- function(n_ind,
 #' @param parameters List of parameters with named components: mean_a and
 #' var_a are the mean and variance for he additive genetic coefficients;
 #' mean_dd and var_dd are the, optional, mean and variance for dominance degrees.
-#' @param Vg Desired genetic variance.
-#' @param trait_mean Desired trait mean.
+#' @param Vg Desired genetic variance. The default value is a trait with variance 1.
+#' @param trait_mean Desired trait mean. The default value is trait standardised
+#' to trait mean 0.
 #'
 #' @return A list describing the trait, with indices to the loci, and additive
 #' genetic coefficients and dominance coefficients for each locus.
+#' @examples
+#' # Founder genotypes
+#' founder_genotypes <- draw_founder_genotypes(n_ind = 50,
+#'                                             n_loci = 1000,
+#'                                             distribution = "beta",
+#'                                             parameters = list(shape1 = 1/2,
+#'                                                               shape2 = 1/2))
+#' # A purely additive trait
+#' trait <- make_trait(founder_genotypes,
+#'                     n_qtl = 50,
+#'                     distribution = "gaussian",
+#'                     parameters = list(mean_a = 0, var_a = 1))
+#' # A trait with dominance
+#' trait <- make_trait(founder_genotypes,
+#'                     n_qtl = 50,
+#'                     distribution = "gaussian",
+#'                     parameters = list(mean_a = 0, var_a = 1,
+#'                                       mean_dd = 0.1, var_dd = 0.2))
 #' @export
 #'
 make_trait <- function(founder_geno,
@@ -109,7 +172,17 @@ make_trait <- function(founder_geno,
 }
 
 
-#' Create a trait based on given effect sizes.
+#' Create a trait based on given effect sizes
+#'
+#' This function is used internally by make_trait, and can be used if you
+#' want more control of genetic architecture.
+#'
+#' Polymorphic loci from the founder genotypes are randomly chosen to be
+#' causative and assigned additive genetic coefficients and optionally
+#' dominance coefficients based on a probability distribution.
+#'
+#' The resulting genetic variance and trait mean are adjusted to
+#' desired numbers.
 #'
 #' @param founder_geno Matrix of individual x locus founder genotypes coded 0, 1, 2.
 #' @param loci_ix Indices of causative variants in genotype matrix.
@@ -232,24 +305,12 @@ add_environmental_noise <- function(genetic_value,
 
 
 
-#' Create the simulation parameters object. Currently very uninteresting.
+#' @title Simulation parameters object
 #'
-#' @param traits List of traits.
-#' @param Ve Vector of environmental variances if intented to be constant.
-#'
-#' @return Simulation parameters object.
+#' @description
+#' Contains data on traits, environmental variance and settings for a
+#' simsimqt simulation.
 #' @export
-# make_simparam <- function(traits,
-#                           Ve,
-#                           use_sexes = TRUE) {
-#
-#   list(traits = traits,
-#        Ve = Ve,
-#        use_sexes = use_sexes,
-#        last_id = 0)
-#
-# }
-
 SimParam <- R6::R6Class("SimParam",
                         public = list(
                           traits = NULL,

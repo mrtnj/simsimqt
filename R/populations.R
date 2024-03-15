@@ -5,7 +5,14 @@
 #' @param geno Matrix of genotypes.
 #' @param simparam Simulation parameters object.
 #'
-#' @return
+#' @return A population object, which contains the following components:
+#'  \itemize{
+#'  \item{"id"}{ with the individuals' identifiers}
+#'  \item{"sex"}{ with sexes coded F and M}
+#'  \item{"geno}{ with the genotype matrix}
+#'  \item{"gv"}{ with genetic values}
+#'  \item{"pheno"}{ with trait values}
+#' }
 #' @export
 new_population <- function(geno,
                            simparam) {

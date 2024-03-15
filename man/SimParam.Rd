@@ -2,43 +2,30 @@
 % Please edit documentation in R/setup.R
 \name{SimParam}
 \alias{SimParam}
-\title{Create the simulation parameters object. Currently very uninteresting.}
-\value{
-Simulation parameters object.
-}
+\title{Simulation parameters object}
 \description{
-Create the simulation parameters object. Currently very uninteresting.
-
-Create the simulation parameters object. Currently very uninteresting.
+Contains data on traits, environmental variance and settings for a
+simsimqt simulation.
 }
 \section{Methods}{
 \subsection{Public methods}{
 \itemize{
-\item \href{#method-new}{\code{SimParam$new()}}
-\item \href{#method-clone}{\code{SimParam$clone()}}
+\item \href{#method-SimParam-new}{\code{SimParam$new()}}
+\item \href{#method-SimParam-clone}{\code{SimParam$clone()}}
 }
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-new"></a>}}
-\if{latex}{\out{\hypertarget{method-new}{}}}
+\if{html}{\out{<a id="method-SimParam-new"></a>}}
+\if{latex}{\out{\hypertarget{method-SimParam-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
 \if{html}{\out{<div class="r">}}\preformatted{SimParam$new(traits = traits, Ve = Ve, use_sexes = TRUE)}\if{html}{\out{</div>}}
 }
 
-\subsection{Arguments}{
-\if{html}{\out{<div class="arguments">}}
-\describe{
-\item{\code{traits}}{List of traits.}
-
-\item{\code{Ve}}{Vector of environmental variances if intented to be constant.}
-}
-\if{html}{\out{</div>}}
-}
 }
 \if{html}{\out{<hr>}}
-\if{html}{\out{<a id="method-clone"></a>}}
-\if{latex}{\out{\hypertarget{method-clone}{}}}
+\if{html}{\out{<a id="method-SimParam-clone"></a>}}
+\if{latex}{\out{\hypertarget{method-SimParam-clone}{}}}
 \subsection{Method \code{clone()}}{
 The objects of this class are cloneable with this method.
 \subsection{Usage}{

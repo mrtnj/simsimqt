@@ -62,6 +62,7 @@ The `make_trait` function creates a trait object, sammpling a given number of va
 
 The resulting trait object contains named elements for the number (index) of the chosen causative variants, the genetic coefficients `a` and `d` for each causative variant, and an intercept (used to adjust the phenotype to a starting value of 0).
 
+
 ```{r}
 trait <- make_trait(founder_genotypes,
                     n_qtl = 50,
@@ -70,6 +71,27 @@ trait <- make_trait(founder_genotypes,
                     Vg = 1)
 trait
 ```
+
+In the above case, the `d` vector consists of zeros because we only simulated additive effects. One could also pass parameters for a probability distribution with dominance expressed as dominance degrees. Here, for example, is a trait where the mean dominance degree is 0.1 and the variance of the dominance degrees is 0.2. 
+
+```{r}
+dominance <- make_trait(founder_genotypes,
+                        n_qtl = 50,
+                        distribution = "gaussian",
+                        parameters = list(mean_a = 0, var_a = 1,
+                                          mean_dd = 0.1, var_dd = 0.2))
+dominance
+```
+
+The relationship between dominance degree and dominance coefficient is $d = \delta |a|$.
+
+```{r}
+delta <- dominance$d / abs(dominance$a)
+mean(delta)
+var(delta)
+```
+
+
 
 ### Simulation parameters object
 
@@ -97,9 +119,9 @@ The population object keeps track of the individuals in a population. Printing i
 population
 ```
 
-### Inspecting genotypic and phenotypic values
+### Inspecting genetic and trait values
 
-One can extract genetic values and phenotypic values, for example to plot them:
+One can extract genetic values (genotypic values) and trait values (phenotypic values), for example to plot them:
 
 ```{r,fig.dim = c(5, 10)}
 par(mfrow = c(2, 1))
@@ -107,7 +129,26 @@ hist(population$gv)
 hist(population$pheno)
 ```
 
-### Inspecting genotypes at causative variants¨
+In the quantitative genetic standard models, the trait values (or phenotypic values, $P$) are made up of a genetic and an environmental part.
+
+$$P = G + E$$
+
+Genetic values are calculated from genotypes and the additive and dominant genetic coefficients `a` and `d`. The contribution from each locus is:
+
+$$G_l = a x_a + d x_d$$
+where:
+
+* $x_a$ is the genotype coded -1, 0, 1
+
+* $x_d$ is an indicator that is 1 for the heterozygote or 0 otherwise.
+
+Thus, summing over loci:
+
+$$G = \sum_l a_l x_{a, l} + d_l x_{d,l}$$
+The environmental effect $E$ is drawn from a normal distribution with mean 0 and chosen variance.
+
+
+### Inspecting genotypes at causative variants
 
 The genotypes at the causative variants can be extracted. The `pull_qtl_geno` function takes a population, the number of the trait to be extracted (here always 1; leaving the option for yet to be implemented multi-trait models), and the simulation parameters object.
 

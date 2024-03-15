@@ -3,7 +3,7 @@
 \name{balanced_cross}
 \alias{balanced_cross}
 \title{Randomly mate individuals from a population while assigning the number
-of offspring in a balanced way across parents and sexes.}
+of offspring in a balanced way across parents and sexes}
 \usage{
 balanced_cross(females, males, n_crosses, n_progeny, simparam)
 }
@@ -22,6 +22,7 @@ balanced_cross(females, males, n_crosses, n_progeny, simparam)
 Population object of offspring.
 }
 \description{
-Randomly mate individuals from a population while assigning the number
-of offspring in a balanced way across parents and sexes.
+In this crossing scheme, males and females are assigned as fathers and mothers
+with equal contributions within sex. The contributions between sexes will be
+different if the number of males and females used differs.
 }

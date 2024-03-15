@@ -2,7 +2,7 @@
 % Please edit documentation in R/setup.R
 \name{make_trait}
 \alias{make_trait}
-\title{Create a quantitative trait based on founder genotypes.}
+\title{Create a quantitative trait based on founder genotypes}
 \usage{
 make_trait(
   founder_geno,
@@ -25,14 +25,44 @@ make_trait(
 var_a are the mean and variance for he additive genetic coefficients;
 mean_dd and var_dd are the, optional, mean and variance for dominance degrees.}
 
-\item{Vg}{Desired genetic variance.}
+\item{Vg}{Desired genetic variance. The default value is a trait with variance 1.}
 
-\item{trait_mean}{Desired trait mean.}
+\item{trait_mean}{Desired trait mean. The default value is trait standardised
+to trait mean 0.}
 }
 \value{
 A list describing the trait, with indices to the loci, and additive
 genetic coefficients and dominance coefficients for each locus.
 }
 \description{
-Create a quantitative trait based on founder genotypes.
+Function to set up causative loci and genetic architecture for a quantitative
+trait. The results are returned as a trait list which can be used to make a
+simulation parameters object.
+}
+\details{
+Polymorphic loci from the founder genotypes are randomly chosen to be
+causative and assigned additive genetic coefficients and optionally
+dominance coefficients based on a probability distribution.
+
+The resulting genetic variance and trait mean are adjusted to
+desired numbers.
+}
+\examples{
+# Founder genotypes
+founder_genotypes <- draw_founder_genotypes(n_ind = 50,
+                                            n_loci = 1000,
+                                            distribution = "beta",
+                                            parameters = list(shape1 = 1/2,
+                                                              shape2 = 1/2))
+# A purely additive trait
+trait <- make_trait(founder_genotypes,
+                    n_qtl = 50,
+                    distribution = "gaussian",
+                    parameters = list(mean_a = 0, var_a = 1))
+# A trait with dominance
+trait <- make_trait(founder_genotypes,
+                    n_qtl = 50,
+                    distribution = "gaussian",
+                    parameters = list(mean_a = 0, var_a = 1,
+                                      mean_dd = 0.1, var_dd = 0.2))
 }

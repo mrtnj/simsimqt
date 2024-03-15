@@ -12,8 +12,10 @@ mutate_per_locus(pop, mutation_rate)
 \item{mutation_rate}{Mutation rate per locus and genome copy.}
 }
 \value{
-Population object.
+Population object with mutated alleles changed.
 }
 \description{
-Mutate the genotype matrix of a population by a per-locus mutation rate.
+This function introduces mutations to a population object. Mutations are
+assumed to happen between the two possible alleles with the same probabilty
+for forward and backward mutation. The mutation rate is per locus.
 }

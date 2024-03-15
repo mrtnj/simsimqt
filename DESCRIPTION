@@ -1,7 +1,7 @@
 Package: simsimqt
 Type: Package
 Title: Simple Simulation of Quantitative Traits
-Version: 0.1.0
+Version: 0.1.1
 Author: Martin Johnsson
 Maintainer: Martin Johnsson <martin.johnsson@slu.se>
 Description: Simple simulation of quantitative traits with finite-locus models
@@ -13,7 +13,7 @@ Suggests:
     knitr,
     rmarkdown
 VignetteBuilder: knitr
-RoxygenNote: 7.1.2
+RoxygenNote: 7.3.1
 LinkingTo: 
     Rcpp
 Imports: 

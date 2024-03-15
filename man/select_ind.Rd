@@ -17,5 +17,6 @@ select_ind(pop, n_ind, trait = 1)
 A population object of selected individuals.
 }
 \description{
-Select top individuals from a population based on trait
+This function selects a number of individuals deterministically based on
+the ranking of their trait values. High values are selected.
 }

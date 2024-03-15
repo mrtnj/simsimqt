@@ -3,7 +3,7 @@
 \name{draw_founder_genotypes}
 \alias{draw_founder_genotypes}
 \title{Sample founder genotypes with frequencies drawn from a random
-distribution.}
+distribution}
 \usage{
 draw_founder_genotypes(n_ind, n_loci, distribution, parameters)
 }
@@ -12,17 +12,36 @@ draw_founder_genotypes(n_ind, n_loci, distribution, parameters)
 
 \item{n_loci}{Number of loci (note that they are not guaranteed to be polymorphic,
 so this number should be bigger than the number of causative variants that
-are planned)}
+are planned).}
 
 \item{distribution}{Distribution for allele frequencies; only beta is implemented.}
 
-\item{parameters}{List of parameters for the random distribution (e.g., for beta
-it would be list(shape1, shape2).}
+\item{parameters}{List of parameters for the random distribution for allele frequencies
+(e.g., for beta it would be list(shape1, shape2).}
 }
 \value{
 Matrix of individual x locus genotypes coded 0, 1, 2
 }
 \description{
-Sample founder genotypes with frequencies drawn from a random
-distribution.
+Create a genotype matrix from a founder population that can be used to start
+the simulation.
+}
+\details{
+Loci are assumed to be unlinked (i.e., genotypes are drawn independently)
+and biallelic (i.e., there are two alleles), and the organism is assumed to
+be diploid (i.e, there are three genotypes). The genotypes are coded as
+0 (homozygote), 1 (heterozygote), and 2 (homzoygote).
+
+First, allele frequencies are drawn from a specified distribution for a
+given number of loci, and then the genotypes are drawn from a binomial
+distribution with size 2 and probability of success equal to the allele
+frequency.
+}
+\examples{
+# Genotypes for 50 individuals, 1000 loci, allele frequencies from Beta(1/2, 1/2).
+founder_genotypes <- draw_founder_genotypes(n_ind = 50,
+                                            n_loci = 1000,
+                                            distribution = "beta",
+                                            parameters = list(shape1 = 1/2,
+                                                              shape2 = 1/2))
 }

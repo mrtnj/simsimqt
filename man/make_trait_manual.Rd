@@ -2,7 +2,7 @@
 % Please edit documentation in R/setup.R
 \name{make_trait_manual}
 \alias{make_trait_manual}
-\title{Create a trait based on given effect sizes.}
+\title{Create a trait based on given effect sizes}
 \usage{
 make_trait_manual(founder_geno, loci_ix, a, d, Vg = NULL, trait_mean = NULL)
 }
@@ -24,5 +24,14 @@ A list describing the trait, with indices to the loci, and additive
 genetic coefficients and dominance coefficients for each locus.
 }
 \description{
-Create a trait based on given effect sizes.
+This function is used internally by make_trait, and can be used if you
+want more control of genetic architecture.
+}
+\details{
+Polymorphic loci from the founder genotypes are randomly chosen to be
+causative and assigned additive genetic coefficients and optionally
+dominance coefficients based on a probability distribution.
+
+The resulting genetic variance and trait mean are adjusted to
+desired numbers.
 }
