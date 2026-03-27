@@ -28,9 +28,14 @@ new_population <- function(geno,
     sex <- sex[1:nrow(geno)]
   }
 
-  simparam$last_id <- nrow(geno)
+  new_ids <- as.character(1:nrow(geno))
 
-  structure(list(id = as.character(1:nrow(geno)),
+  simparam$last_id <- nrow(geno)
+  simparam$add_to_pedigree(new_ids,
+                           rep("0", length(new_ids)),
+                           rep("0", length(new_ids)))
+
+  structure(list(id = new_ids,
                  sex = sex,
                  geno = geno,
                  gv = gv_pheno$gv,
@@ -43,7 +48,7 @@ new_population <- function(geno,
 get_trait_values <- function(geno, simparam) {
 
   if (length(simparam$traits) > 0) {
-    gv <- calculate_genetic_values(geno = geno[, simparam$traits[[1]]$loci_ix],
+    gv <- calculate_genetic_values(geno = geno[, simparam$traits[[1]]$loci_ix, drop = FALSE],
                                    a = simparam$traits[[1]]$a,
                                    d = simparam$traits[[1]]$d) +
       simparam$traits[[1]]$intercept
@@ -230,7 +235,41 @@ pull_qtl_freq <- function(pop,
                           trait = 1,
                           simparam) {
 
-  geno <- pop$geno[, simparam$traits[[trait]]$loci_ix]
+  geno <- pop$geno[, simparam$traits[[trait]]$loci_ix, drop = FALSE]
+  colSums(geno)/2/nrow(geno)
+
+}
+
+#' Get frequencies of non-causative variants from population object
+#'
+#' @param pop Population object.
+#' @param simparam Simulation parameters object.
+#'
+#' @return Allele frequencies
+#' @export
+pull_nonqtl_freq <- function(pop,
+                             simparam) {
+
+  if (length(simparam$traits) > 1) {
+    stop("Not implemented for more than one trait.")
+  } else if (length(simparam$traits) == 1) {
+    geno <- pop$geno[, -simparam$traits[[1]]$loci_ix, drop = FALSE]
+    p <- colSums(geno)/2/nrow(geno)
+  } else if (length(simparam$traits) == 0) {
+    p <- colSums(pop$geno)/2/nrow(pop$geno)
+  }
+  p
+}
+
+#' Get frequencies of all variants from population object.
+#'
+#' @param pop Population object.
+#'
+#' @return Allele frequencies
+#' @export
+pull_freq <- function(pop) {
+
+  geno <- pop$geno
   colSums(geno)/2/nrow(geno)
 
 }

@@ -202,17 +202,20 @@ To select a given number of individuals based on a fitness function, use `select
 
 A fitness function is a function that takes trait values of indivividuals and return a value representing their fitness. For stabilising selection, exponential fitness functions like this one are common. This one has the optimum at 0, and decreasing fitness around that.
 
+The first parameter of a fitness function needs to be a vector of trait values, so that the selection functions can pass the trait value vector and get a fitness value back. Optionally, other parameters that control the shape of the fitness function can be included, and they can be passed ot the selection function, which will pass them on to the fitness function. Here, for example, the fitness function takes a parameter `s`.
+
 ```{r}
-fitness_stabilising <- function(trait) {
+fitness_stabilising <- function(trait, s = 1) {
   
-  exp(-trait^2)
+  exp(-s * trait^2)
   
 }
 
 selected_stabilising <- select_ind_fitness(population,
                                            trait = 1,
                                            n_ind = 20,
-                                           fitness_function = fitness_stabilising)
+                                           fitness_function = fitness_stabilising,
+                                           s = 0.5)
 ```
 
 

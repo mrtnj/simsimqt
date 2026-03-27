@@ -1,23 +1,33 @@
 
 #' Select top individuals from a population based on trait
 #'
-#' This function selects a number of individuals deterministically based on
-#' the ranking of their trait values. High values are selected.
+#' This function selects a number of individuals based on
+#' either the ranking of their trait values or at random.
+#' High trait values are selected.
 #'
 #' @param pop Population to select from.
 #' @param n_ind Number of individuals to select.
+#' @param method Selection method. "pheno" for trait values. "rand" for random.
 #' @param trait Trait number of the trait to select on.
 #'
 #' @return A population object of selected individuals.
 #' @export
 select_ind <- function(pop,
                        n_ind,
+                       method = "pheno",
                        trait = 1) {
 
-  ranking <- order(pop$pheno[, trait],
+  if (method == "pheno") {
+    ranking <- order(pop$pheno[, trait],
                    decreasing = TRUE)
-  pop[pop$id[ranking[1:n_ind]]]
-
+    result <- pop[pop$id[ranking[1:n_ind]]]
+  } else if (method == "rand") {
+    ids <- sample(pop$id, n_ind)
+    result <- pop[ids]
+  } else {
+    stop("Selection method not implemented.")
+  }
+  result
 }
 
 
@@ -39,7 +49,8 @@ select_ind <- function(pop,
 select_ind_fitness <- function(pop,
                                n_ind,
                                fitness_function,
-                               trait = 1) {
+                               trait = 1,
+                               ...) {
 
   fitness <- fitness_function(pop$pheno[, trait])
   average_fitness <- mean(fitness)
@@ -54,6 +65,35 @@ select_ind_fitness <- function(pop,
 
   pop[pop$id[selected_ix]]
 
+}
+
+#' Select individuals from a population that cross a given threshold
+#'
+#' This function selects a number of individuals by independent culling,
+#' only allowing individuals whose trait values are above a given threshold.
+#' When there are more individuals available than given, eligible individuals
+#' are sampled randomly without replacement.
+#'
+#' @param pop Population to select from.
+#' @param n_ind Number of individuals to select.
+#' @param threshold Phenotypic threshold for inclusion.
+#' @param method Selection method. Only "pheno" for trait values is implemented.
+#' @param trait Trait number of the trait to select on.
+#'
+#' @return A population object of selected individuals.
+#' @export
+select_culling <- function(pop,
+                           n_ind,
+                           threshold,
+                           method = "pheno",
+                           trait = 1) {
+
+  candidates_ix <- which(pop$pheno[, trait] > threshold)
+  if (length(candidates_ix) > n_ind) {
+    candidates_ix <- sample(candidates_ix, n_ind)
+  }
+
+  pop[pop$id[candidates_ix]]
 }
 
 
@@ -115,6 +155,12 @@ make_cross <- function(pop,
                            nrow = nrow(cross_plan))
 
   for (cross_ix in 1:nrow(cross_plan)) {
+    if (sum(pop$id == cross_plan[cross_ix, 1]) > 1) {
+      stop("Female appears more than one time in population.")
+    }
+    if (sum(pop$id == cross_plan[cross_ix, 2]) > 1) {
+      stop("Male appears more than one time in population.")
+    }
     mother_geno <- pop$geno[pop$id == cross_plan[cross_ix, 1], ]
     father_geno <- pop$geno[pop$id == cross_plan[cross_ix, 2], ]
 
@@ -130,7 +176,13 @@ make_cross <- function(pop,
 
   gv_pheno <- get_trait_values(offspring_geno, simparam)
 
-  offspring <- structure(list(id = as.character(next_id:(next_id + nrow(offspring_geno) - 1)),
+  new_ids <- as.character(next_id:(next_id + nrow(offspring_geno) - 1))
+
+  simparam$add_to_pedigree(new_ids,
+                           cross_plan[,1],
+                           cross_plan[,2])
+
+  offspring <- structure(list(id = new_ids,
                               sex = sex,
                               geno = offspring_geno,
                               gv = gv_pheno$gv,

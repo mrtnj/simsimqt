@@ -4,12 +4,14 @@
 \alias{select_ind}
 \title{Select top individuals from a population based on trait}
 \usage{
-select_ind(pop, n_ind, trait = 1)
+select_ind(pop, n_ind, method = "pheno", trait = 1)
 }
 \arguments{
 \item{pop}{Population to select from.}
 
 \item{n_ind}{Number of individuals to select.}
+
+\item{method}{Selection method. "pheno" for trait values. "rand" for random.}
 
 \item{trait}{Trait number of the trait to select on.}
 }
@@ -17,6 +19,7 @@ select_ind(pop, n_ind, trait = 1)
 A population object of selected individuals.
 }
 \description{
-This function selects a number of individuals deterministically based on
-the ranking of their trait values. High values are selected.
+This function selects a number of individuals based on
+either the ranking of their trait values or at random.
+High trait values are selected.
 }

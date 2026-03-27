@@ -5,7 +5,7 @@
 \title{Select individuals from a population based on sampling weighted by
 a fitness function.}
 \usage{
-select_ind_fitness(pop, n_ind, fitness_function, trait = 1)
+select_ind_fitness(pop, n_ind, fitness_function, trait = 1, ...)
 }
 \arguments{
 \item{pop}{Population to select from.}

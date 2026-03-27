@@ -317,8 +317,9 @@ SimParam <- R6::R6Class("SimParam",
                           Ve = NULL,
                           use_sexes = NULL,
                           last_id = NULL,
-                          initialize = function(traits = traits,
-                                                Ve = Ve,
+                          pedigree = NULL,
+                          initialize = function(traits = list(),
+                                                Ve = 0,
                                                 use_sexes = TRUE) {
                             stopifnot("Traits not in list" =
                                         is.list(traits))
@@ -326,5 +327,14 @@ SimParam <- R6::R6Class("SimParam",
                             self$Ve <- Ve
                             self$use_sexes <- use_sexes
                             self$last_id <- 0
+                            self$pedigree <- list(id = character(),
+                                                  mother = character(),
+                                                  father = character())
+                          },
+                          add_to_pedigree = function(id, mother, father) {
+                            self$pedigree$id <- c(self$pedigree$id, id)
+                            self$pedigree$mother <- c(self$pedigree$mother, mother)
+                            self$pedigree$father <- c(self$pedigree$father, father)
                           }
+
                         ))

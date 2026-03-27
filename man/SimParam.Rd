@@ -11,6 +11,7 @@ simsimqt simulation.
 \subsection{Public methods}{
 \itemize{
 \item \href{#method-SimParam-new}{\code{SimParam$new()}}
+\item \href{#method-SimParam-add_to_pedigree}{\code{SimParam$add_to_pedigree()}}
 \item \href{#method-SimParam-clone}{\code{SimParam$clone()}}
 }
 }
@@ -19,7 +20,16 @@ simsimqt simulation.
 \if{latex}{\out{\hypertarget{method-SimParam-new}{}}}
 \subsection{Method \code{new()}}{
 \subsection{Usage}{
-\if{html}{\out{<div class="r">}}\preformatted{SimParam$new(traits = traits, Ve = Ve, use_sexes = TRUE)}\if{html}{\out{</div>}}
+\if{html}{\out{<div class="r">}}\preformatted{SimParam$new(traits = list(), Ve = 0, use_sexes = TRUE)}\if{html}{\out{</div>}}
+}
+
+}
+\if{html}{\out{<hr>}}
+\if{html}{\out{<a id="method-SimParam-add_to_pedigree"></a>}}
+\if{latex}{\out{\hypertarget{method-SimParam-add_to_pedigree}{}}}
+\subsection{Method \code{add_to_pedigree()}}{
+\subsection{Usage}{
+\if{html}{\out{<div class="r">}}\preformatted{SimParam$add_to_pedigree(id, mother, father)}\if{html}{\out{</div>}}
 }
 
 }
